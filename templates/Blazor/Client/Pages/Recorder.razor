@@ -1,0 +1,138 @@
+﻿@page "/transcript"
+@* @inherits LiveComponentBase<string, Recorder.LocalState> *@
+@using System.Threading
+@* @using ServiceTitan.Speech.Abstractions *@
+@using Stl.Collections
+@using Stl.Reflection
+@using Templates.Blazor.Common
+@* @implements IRecorderBackend *@
+@inject IJSRuntime JS
+@* @inject ITranscriber Transcriber *@
+@inject ILogger<Recorder> Log
+
+@{
+    // var locals = Locals.Value;
+    // var state = State.LastValue;
+    // var error = State.Error;
+}
+
+<h1>Real-time Speech Transcription</h1>
+
+@* <p>Transcript: <b>@state</b></p> *@
+
+<Buttons>
+    @* <Button Color="Color.Primary" @onclick="StartRecording" Disabled="@locals.IsRecording">Start</Button> *@
+    <Button Color="Color.Primary">Start</Button>
+    @* <Button Color="Color.Danger" @onclick="StopRecording" Disabled="@(!locals.IsRecording)">Stop</Button> *@
+    <Button Color="Color.Danger" Clicked="ClickCount">Stop</Button>
+</Buttons>
+<br>
+@if (!string.IsNullOrWhiteSpace(Message))
+{
+    <p>@Message</p>
+}
+
+<p></p>
+<h2>Active Transcriptions</h2>
+
+<ActiveTranscriptions/>
+
+@code {
+    public class LocalState
+    {
+        public string TranscriptId { get; set; } = "";
+        public bool IsRecording => TranscriptId != "";
+    }
+
+    private IJSObjectReference JSRecorderRef { get; set; } = null!;
+    private DotNetObjectReference<IRecorderBackend> DotNetRecorderRef { get; set; } = null!;
+
+    private string Message { get; set; }
+    private int Number { get; set; }
+    void ClickCount()
+    {
+        Number++;
+        Message = $"Click #{Number}";
+    }
+
+    // public override void Dispose()
+    // {
+    //     base.Dispose();
+    //     DotNetRecorderRef?.Dispose();
+    //     JSRecorderRef?.DisposeAsync();
+    // }
+
+    // protected override async Task OnAfterRenderAsync(bool firstRender)
+    // {
+    //     if (firstRender) {
+    //         DotNetRecorderRef = DotNetObjectReference.Create<IRecorderBackend>(this);
+    //         JSRecorderRef = await JS.InvokeAsync<IJSObjectReference>("import", "./js/recorder.js");
+    //         await JSRecorderRef.InvokeVoidAsync("initialize");
+    //     }
+    // }
+
+    // protected override async Task<string> ComputeStateAsync(CancellationToken cancellationToken)
+    // {
+    //     var locals = Locals.Value;
+    //     if (!locals.IsRecording) {
+    //         return State.LastValue;
+    //     }
+    //     var transcript = await Transcriber.GetAsync(locals.TranscriptId, cancellationToken);
+    //     return transcript.Segments.Select(s => s.Text).ToDelimitedString(" ");
+    // }
+
+    // UI event handlers
+
+    private async void StartRecording()
+    {
+        await JSRecorderRef.InvokeVoidAsync("startRecording", DotNetRecorderRef);
+    }
+
+    private async void StopRecording()
+    {
+        await JSRecorderRef.InvokeVoidAsync("stopRecording");
+    }
+
+    // IRecorderUI implementation
+
+    // [JSInvokable]
+    // public async Task RecordingStartedAsync()
+    // {
+    //     var value = MemberwiseCloner.Clone(Locals.Value);
+    //     value.TranscriptId = await Transcriber.BeginAsync(Array.Empty<byte>());
+    //     Locals.Value = value;
+    // }
+
+    // [JSInvokable]
+    // public async Task RecordingDataAvailableAsync(string dataAsBase64)
+    // {
+    //     var locals = Locals.Value;
+    //     if (!locals.IsRecording) {
+    //         return;
+    //     }
+    //     var data = Convert.FromBase64String(dataAsBase64);
+    //     try {
+    //         await Transcriber.AppendAsync(locals.TranscriptId, data);
+    //     }
+    //     catch (KeyNotFoundException) {
+    //         // Intended: this method call might follow RecordingStoppedAsync, so
+    //         // we should simply suppress an error in this case.
+    //     }
+    // }
+
+    // [JSInvokable]
+    // public async Task RecordingStoppedAsync()
+    // {
+    //     var value = MemberwiseCloner.Clone(Locals.Value);
+    //     try {
+    //         await Transcriber.EndAsync(value.TranscriptId);
+    //     }
+    //     catch (Exception e) {
+    //         Log.LogError(e, "Error while trying to stop the transcription.");
+    //     }
+    //     State.UpdateDelayer.CancelDelays();
+    //     await Task.Delay(500);
+    //     value.TranscriptId = "";
+    //     Locals.Value = value;
+    // }
+}

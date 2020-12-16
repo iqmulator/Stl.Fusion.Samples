@@ -5,11 +5,14 @@
     </button>
 </div>
 
-<div class="@(IsExpanded ? "" : "collapse")" @onclick="ToggleExpanded">
+@* <div class="@(IsExpanded ? "" : "collapse")" @onclick="ToggleExpanded"> *@
+<div>
     <ul class="nav flex-column p-3">
         @MenuItem("home", "Home", "", NavLinkMatch.All)
         @MenuItem("clock", "Server Time", "serverTime")
         @MenuItem("person", "Authentication", "authentication")
+        @MenuItem("star", "Recorder", "transcript")
+        
         <li class="p0 mb-1 mx-auto text-white">&#8943;</li>
         @MenuItem("code", "Source @ GitHub", "https://github.com/servicetitan/Stl.Fusion.Samples")
     </ul>

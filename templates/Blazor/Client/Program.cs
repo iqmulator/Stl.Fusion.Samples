@@ -12,6 +12,9 @@ using Stl.Fusion.Client;
 using Stl.OS;
 using Stl.DependencyInjection;
 using Stl.Fusion.Blazor;
+using Blazorise;
+using Blazorise.Bootstrap;
+using Blazorise.Icons.FontAwesome;
 
 namespace Templates.Blazor.Client
 {
@@ -25,9 +28,23 @@ namespace Templates.Blazor.Client
                 throw new ApplicationException("This app runs only in browser.");
 
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
+                        
+            builder.Services
+                .AddBlazorise( options =>
+                {
+                    options.ChangeTextOnKeyPress = true;
+                } )
+                .AddBootstrapProviders()
+                .AddFontAwesomeIcons();
+
             ConfigureServices(builder.Services, builder);
             builder.RootComponents.Add<App>("#app");
+
             var host = builder.Build();
+            
+            host.Services
+                .UseBootstrapProviders()
+                .UseFontAwesomeIcons();
 
             var runTask = host.RunAsync();
             Task.Run(async () => {

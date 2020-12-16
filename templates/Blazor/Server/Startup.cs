@@ -22,6 +22,7 @@ using Stl.Fusion.Blazor;
 using Stl.Fusion.Bridge;
 using Stl.Fusion.Client;
 using Stl.Fusion.Server;
+using Templates.Blazor.Common;
 
 namespace Templates.Blazor.Server
 {
@@ -62,6 +63,8 @@ namespace Templates.Blazor.Server
             services.AttributeBased().AddServicesFrom(Assembly.GetExecutingAssembly());
             // Registering shared services from the client
             Client.Program.ConfigureSharedServices(services);
+            
+            // services.AddSingleton<ITranscriber>(c => c.GetRequiredService<DeepSpeechTranscriber>());
 
             services.AddAuthentication(options => {
                     options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -142,6 +145,7 @@ namespace Templates.Blazor.Server
 
             // API controllers
             app.UseRouting();
+            
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseEndpoints(endpoints => {
